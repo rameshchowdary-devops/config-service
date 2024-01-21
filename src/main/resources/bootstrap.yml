@@ -1,0 +1,31 @@
+#server:
+#  port: 8888
+#
+#spring:
+#  application:
+#    name: config-server
+#
+#  cloud:
+#    consul:
+#      host: 192.168.120.32
+#      port: 8500
+#    config:
+#      server:
+#        git:
+#          uri: https://github.com/SDGT/Bakend_ConfigurationFiles
+#          username: prashantsdglobaltech
+#          password: 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
+#          ignore-local-ssh-settings: true
+#        default-label: main
+#management:
+#  endpoint:
+#    metrics:
+#      enabled: true
+#      show-details: always
+#    health:
+#      show-details: always
+#  endpoints:
+#    metrics:
+#      exposure:
+#        include: *
+#
