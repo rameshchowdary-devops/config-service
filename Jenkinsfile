@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         DOCKER_HUB_CREDENTIALS = credentials('docker-hub-credentials-id')
-        MAVEN_HOME = tool 'Maven'
+
         IMAGE_TAG = "${BUILD_NUMBER}"
     }
 
