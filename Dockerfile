@@ -1,18 +1,23 @@
-# the first stage of our build will use a maven 3.6.1 parent image
-FROM maven:3.6.1-jdk-8-alpine AS MAVEN_BUILD
+# Use an official Maven image as a build environment
+FROM maven:3.8.4-openjdk-11 AS build
 
-# copy the pom and src code to the container
-COPY ./ ./
+# Set the working directory inside the container
+WORKDIR /app
 
-# package our application code
+# Copy the project files into the container
+COPY . .
+
+# Build the application
 RUN mvn clean package
 
-# the second stage of our build will use open jdk 8 on alpine 3.9
-#FROM openjdk:8-jre-alpine3.9
+# Use a lightweight OpenJDK runtime as the final base image
 FROM openjdk:11-jre-slim
 
-# copy only the artifacts we need from the first stage and discard the rest
-COPY --from=MAVEN_BUILD /Backend_ConfigServer/target/config-server-0.0.1-SNAPSHOT.jar /config-server-0.0.1-SNAPSHOT.jar
+# Set the working directory inside the container
+WORKDIR /app
 
-# set the startup command to execute the jar
-CMD ["java", "-jar", "/config-server-0.0.1-SNAPSHOT.jar"]
+# Copy the JAR file from the build image into the final image
+COPY --from=build /app/target/config-server-0.0.1-SNAPSHOT.jar /app/
+
+# Specify the command to run on container start
+CMD ["java", "-jar", "config-server-0.0.1-SNAPSHOT.jar"]
