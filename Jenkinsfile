@@ -9,39 +9,35 @@ pipeline {
 
     stages {
         stage('Build') {
-        
-           steps {
-                git credentialsId: '1fda5e71-b25f-4e8c-b7c1-81c7a4db4793', 
-                url: 'https://github.com/rameshchowdary-devops/config-service.git',
-                branch: 'main'                
- 
-            }
-        }
-        stage('Build Docker'){
-            steps{
-                script{
-                    sh '''
-                    echo 'Buid Docker Image'
-                    docker build -t rameshpaidi/config-service:${BUILD_NUMBER} .
-                    '''
+            steps {
+                script {
+                    git credentialsId: '1fda5e71-b25f-4e8c-b7c1-81c7a4db4793',
+                    url: 'https://github.com/rameshchowdary-devops/config-service.git',
+                    branch: 'main'
                 }
             }
         }
 
-        stage('Push the artifacts'){
-           steps{
-                script{
-                    sh '''
+        stage('Build Docker') {
+            steps {
+                script {
+                    echo 'Build Docker Image'
+                    docker.build("rameshpaidi/config-service:${IMAGE_TAG}")
+                }
+            }
+        }
+
+        stage('Push the artifacts') {
+            steps {
+                script {
                     echo 'Push to Repo'
-                    docker push rameshpaidi/config-service:${BUILD_NUMBER}
-                    '''
+                    docker.withRegistry('', DOCKER_HUB_CREDENTIALS) {
+                        docker.image("rameshpaidi/config-service:${IMAGE_TAG}").push()
+                    }
                 }
             }
-        }   
-
-    
-
-         
+        }
+    }
 
     post {
         always {
@@ -51,6 +47,4 @@ pipeline {
             }
         }
     }
-
-
 }
