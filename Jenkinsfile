@@ -4,39 +4,44 @@ pipeline {
     environment {
         DOCKER_HUB_CREDENTIALS = credentials('docker-hub-credentials-id')
         MAVEN_HOME = tool 'Maven'
+        IMAGE_TAG = "${BUILD_NUMBER}"
     }
 
     stages {
         stage('Build') {
-            steps {
-                script {
-                    // Set Maven to the path
-                    def mavenHome = tool 'Maven'
-                    env.PATH = "${mavenHome}/bin:${env.PATH}"
-
-                    // Maven Build
-                    sh "mvn clean install"
+        
+           steps {
+                git credentialsId: '1fda5e71-b25f-4e8c-b7c1-81c7a4db4793', 
+                url: 'https://github.com/rameshchowdary-devops/config-service.git',
+                branch: 'main'                
+ 
+            }
+        }
+        stage('Build Docker'){
+            steps{
+                script{
+                    sh '''
+                    echo 'Buid Docker Image'
+                    docker build -t rameshpaidi/config-service:${BUILD_NUMBER} .
+                    '''
                 }
             }
         }
 
-        stage('Docker Build & Push') {
-            steps {
-                script {
-                    // Docker Build
-                    sh "docker build -t rameshpaidi/config-service:latest ."
-
-                    // Docker Login
-                    withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'docker-hub-credentials-id', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD']]) {
-                        sh "docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}"
-                    }
-
-                    // Docker Push
-                    sh "docker push rameshpaidi/config-service:latest"
+        stage('Push the artifacts'){
+           steps{
+                script{
+                    sh '''
+                    echo 'Push to Repo'
+                    docker push rameshpaidi/config-service:${BUILD_NUMBER}
+                    '''
                 }
             }
-        }
-    }
+        }   
+
+    
+
+         
 
     post {
         always {
@@ -46,5 +51,6 @@ pipeline {
             }
         }
     }
-}
 
+
+}
